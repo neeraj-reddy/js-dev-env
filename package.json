@@ -6,9 +6,6 @@
   "scripts": {},
   "author": "Neeraj Reddy",
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/pneerajreddy/js-dev-env/issues"
-  },
   "dependencies": {
     "whatwg-fetch": "^2.0.4"
   },
