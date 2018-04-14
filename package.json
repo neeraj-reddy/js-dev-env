@@ -3,7 +3,14 @@
   "version": "1.0.0",
   "description": "JavaScript Development Environment",
   "main": "index.js",
-  "scripts": {},
+  "scripts": {
+      "prestart": "node build_scripts/start-msg.js",
+      "start": "npm-run-all --parallel security-check open:src",
+      "open:src": "node build_scripts/src-server.js",
+      "security-check": "nsp check",
+      "localtunnel": "lt --port 3000",
+      "share": "npm-run-all --parallel open:src localtunnel"
+  },
   "author": "Neeraj Reddy",
   "license": "MIT",
   "dependencies": {
