@@ -1,6 +1,7 @@
+import webpack from 'webpack';
 import path from 'path';
 
-module.exports = {
+export default {
     debug: true,
     devtool: 'inline-source-map',
     noInfo: false,
@@ -13,26 +14,14 @@ module.exports = {
         publicPath: '/',
         filename: 'bundle.js'
     },
-    plugins: [
-
-    ],
+    devServer: {
+        contentBase: path.resolve(__dirname, 'src')
+    },
+    plugins: [],
     module: {
         loaders: [
-            {
-                test: /\.js$/,
-                exclude: /node_modules/,
-                loader: 'babel-loader',
-                options: {
-                    presets: ['@babel/preset-env']
-                }
-            },
-            {
-                test: /\.css$/,
-                use: [
-                    { loader: "style-loader" },
-                    { loader: "css-loader" }
-                ]
-            }
+            {test: /\.js$/, exclude: /node_modules/, loaders: ['babel']},
+            {test: /\.css$/, loaders: ['style','css']}
         ]
     }
 }
