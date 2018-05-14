@@ -5,9 +5,11 @@ import webpackMd5Hash from 'webpack-md5-hash';
 import extractTextPlugin from 'extract-text-webpack-plugin';
 
 export default {
-    debug: true,
+    mode: 'production',
+    resolve: {
+        extensions: ['*', '.js', '.jsx', '.json']
+    },
     devtool: 'source-map',
-    noInfo: false,
     entry: {
         vendor: path.resolve(__dirname, 'src/vendor'),
         main: path.resolve(__dirname, 'src/index')
@@ -18,18 +20,36 @@ export default {
         publicPath: '/',
         filename: '[name].[chunkhash].js'
     },
+    // Webpack 4 removed the commonsChunkPlugin. Use optimization.splitChunks instead.
+    optimization: {
+        splitChunks: {
+            cacheGroups: {
+                commons: {
+                    test: /[\\/]node_modules[\\/]/,
+                    name: 'vendor',
+                    chunks: 'all'
+                }
+            }
+        }
+    },
     plugins: [
-         // Generate an external css file with a hash in the filename
-        new extractTextPlugin('[name].[contenthash].css'),
+        // Global loader configuration
+        new webpack.LoaderOptionsPlugin({
+            minimize: true,
+            debug: false,
+            noInfo: true // set to false to see a list of every file being bundled.
+        }),
+        
+        // Generate an external css file with a hash in the filename
+        new extractTextPlugin('[name].[md5:contenthash:hex:20].css'),
 
         // Hash the files using MD5 so that their names change when the content changes.
         new webpackMd5Hash(),
 
-        // Use CommonsChunkPlugin to create a separate bundle
-        // of vendor libraries so that they're cached separately
-        new webpack.optimize.CommonsChunkPlugin({
-            name: 'vendor'
-        }),
+        // No longer used for Webpack 4. See optimization.splitChunks above instead.        
+        // new webpack.optimize.CommonsChunkPlugin({
+        //     name: 'vendor'
+        // }),
 
         // Create HTML file that includes reference to bundled JS
         new htmlWebpackPlugin({
@@ -50,18 +70,16 @@ export default {
             // Properties you define here are available in index.html
             // using htmlWebpackPlugin.options.varName
             trackJSToken: 'INSERT YOUR TOKEN HERE'
-        }),
-
-        // Eliminate duplicate packages when generating bundle
-        new webpack.optimize.DedupePlugin(),
-
+        })
+        
         // Minify JS
-        new webpack.optimize.UglifyJsPlugin()
+        // Code is automatically minified in prod mode as of Webpack 4, so removing this.
+        // new webpack.optimize.UglifyJsPlugin()
     ],
     module: {
-        loaders: [
-            {test: /\.js$/, exclude: /node_modules/, loaders: ['babel']},
-            {test: /\.css$/, loader: extractTextPlugin.extract('css?sourceMap')}
+        rules: [
+            {test: /\.js$/, exclude: /node_modules/, loader: 'babel-loader'},
+            {test: /\.css$/, loader: extractTextPlugin.extract('css-loader?sourceMap')}
         ]
     }
 }
